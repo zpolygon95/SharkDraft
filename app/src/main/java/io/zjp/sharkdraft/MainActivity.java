@@ -1,4 +1,4 @@
-t stpackage io.zjp.sharkdraft;
+package io.zjp.sharkdraft;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
