@@ -89,6 +89,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createDraft(View view) {
+        int nDivisions;
+        if (teamArray.size() < 1)
+        {
+            Toast.makeText(this, "Please enter at least one Team", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            nDivisions = Integer.parseInt(numDivisions.getText().toString());
+        } catch (NumberFormatException nfe) {
+            Toast.makeText(this, "# of Divisions must be between 1 and # of Teams", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (nDivisions < 1 || nDivisions > teamArray.size())
+        {
+            Toast.makeText(this, "# of Divisions must be between 1 and # of Teams", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent draftIntent = new Intent(this, DraftViewActivity.class);
         ArrayList<String> randDraftOrder = new ArrayList<>(teamArray);
         Collections.shuffle(randDraftOrder);
@@ -96,7 +113,9 @@ public class MainActivity extends AppCompatActivity {
         for (String s : randDraftOrder) {
             toPass += s + ";";
         }
+        toPass = toPass.substring(0, toPass.length() - 1);
         draftIntent.putExtra("io.zjp.DRAFT_TEAMS", toPass);
+        draftIntent.putExtra("io.zjp.DRAFT_DIVISIONS", nDivisions);
         startActivity(draftIntent);
     }
 }
