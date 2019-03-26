@@ -90,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void createDraft(View view) {
         int nDivisions;
+
+        // validate input
+
         if (teamArray.size() < 1)
         {
             Toast.makeText(this, "Please enter at least one Team", Toast.LENGTH_SHORT).show();
@@ -106,7 +109,13 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "# of Divisions must be between 1 and # of Teams", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        // create intent
+
         Intent draftIntent = new Intent(this, DraftViewActivity.class);
+
+        // generate draft order
+
         ArrayList<String> randDraftOrder = new ArrayList<>(teamArray);
         Collections.shuffle(randDraftOrder);
         String toPass = "";
@@ -115,7 +124,30 @@ public class MainActivity extends AppCompatActivity {
         }
         toPass = toPass.substring(0, toPass.length() - 1);
         draftIntent.putExtra("io.zjp.DRAFT_TEAMS", toPass);
-        draftIntent.putExtra("io.zjp.DRAFT_DIVISIONS", nDivisions);
+
+        // put teams into divisions
+
+        Collections.shuffle(randDraftOrder);
+        String divisions[] = new String[nDivisions];
+        int division = 0;
+        for (String s : randDraftOrder) {
+            if (divisions[division] == null)
+                divisions[division] = s;
+            else
+                divisions[division] += "\n" + s;
+            division = (division + 1) % nDivisions;
+        }
+        String toPassDivisions = null;
+        for (String s : divisions) {
+            if (toPassDivisions == null)
+                toPassDivisions = s;
+            else
+                toPassDivisions += ";" + s;
+        }
+        draftIntent.putExtra("io.zjp.DRAFT_DIVISIONS", toPassDivisions);
+
+        // go to Draft Order View
+
         startActivity(draftIntent);
     }
 }
