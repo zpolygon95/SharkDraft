@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Team names must be unique", Toast.LENGTH_SHORT).show();
         } else {
             teamArray.add(toAdd);
-            listTeams.invalidate();
+            teamsAdapter.notifyItemInserted(teamArray.size() - 1);
         }
     }
 
