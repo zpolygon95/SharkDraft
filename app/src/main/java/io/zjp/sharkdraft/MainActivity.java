@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView listTeams;
     private RecyclerView.Adapter teamsAdapter;
     private RecyclerView.LayoutManager teamsManager;
-
+//dsfdsf
     private ArrayList<String> teamArray;
 
     public class TeamsAdapter extends RecyclerView.Adapter<TeamsAdapter.ViewHolder> {
