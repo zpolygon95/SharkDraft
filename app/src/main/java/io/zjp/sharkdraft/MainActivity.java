@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Enter a team name", Toast.LENGTH_SHORT).show();
         } else if (teamArray.contains(toAdd)) {
             Toast.makeText(this, "Team names must be unique", Toast.LENGTH_SHORT).show();
+            // test
         } else {
             teamArray.add(toAdd);
             teamsAdapter.notifyItemInserted(teamArray.size() - 1);
