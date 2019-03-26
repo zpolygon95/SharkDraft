@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -89,8 +90,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void createDraft(View view) {
         Intent draftIntent = new Intent(this, DraftViewActivity.class);
+        ArrayList<String> randDraftOrder = new ArrayList<>(teamArray);
+        Collections.shuffle(randDraftOrder);
         String toPass = "";
-        for (String s : teamArray) {
+        for (String s : randDraftOrder) {
             toPass += s + ";";
         }
         draftIntent.putExtra("io.zjp.DRAFT_TEAMS", toPass);
