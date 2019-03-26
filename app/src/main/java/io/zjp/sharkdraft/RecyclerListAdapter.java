@@ -40,6 +40,9 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
 
     @Override
     public int getItemCount() {
-        return data.length;
+        if (data != null)
+            return data.length;
+        else
+            return 0;
     }
 }

@@ -17,21 +17,7 @@ public class DraftViewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_draft_view);
         recyclerView = findViewById(R.id.my_recycler_view);
 
-        String[] dataset = new String[14];
-        dataset[0] = "A";
-        dataset[1] = "B";
-        dataset[2] = "C";
-        dataset[3] = "D";
-        dataset[4] = "E";
-        dataset[5] = "F";
-        dataset[6] = "G";
-        dataset[7] = "H";
-        dataset[8] = "I";
-        dataset[9] = "J";
-        dataset[10] = "K";
-        dataset[11] = "L";
-        dataset[12] = "M";
-        dataset[13] = "N";
+        String[] dataset = getIntent().getStringExtra("io.zjp.DRAFT_TEAMS").split(";");
 
         recyclerView.setHasFixedSize(true);
         manager = new LinearLayoutManager(this);

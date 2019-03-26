@@ -88,6 +88,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void createDraft(View view) {
         Intent draftIntent = new Intent(this, DraftViewActivity.class);
+        String toPass = "";
+        for (String s : teamArray) {
+            toPass += s + ";";
+        }
+        draftIntent.putExtra("io.zjp.DRAFT_TEAMS", toPass);
         startActivity(draftIntent);
     }
 }
