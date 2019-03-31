@@ -14,10 +14,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class signup extends AppCompatActivity implements View.OnClickListener{
 
-    EditText txtEmail, txtPass;
+    EditText txtEmail, txtPass, txtName;
     ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
@@ -29,6 +31,7 @@ public class signup extends AppCompatActivity implements View.OnClickListener{
 
         txtEmail=findViewById(R.id.txtEmail);
         txtPass=findViewById(R.id.txtPass);
+        txtName=findViewById(R.id.txtName);
         progressBar =findViewById(R.id.progressbar);
 
         mAuth = FirebaseAuth.getInstance();
@@ -40,8 +43,14 @@ public class signup extends AppCompatActivity implements View.OnClickListener{
     private void registerUser() {
         String email=txtEmail.getText().toString().trim();
         String password=txtPass.getText().toString().trim();
+        final String username=txtName.getText().toString().trim();
+
 
         //Validation block
+        if(username.isEmpty()){
+            txtName.setError("Username is required");
+            txtName.requestFocus();
+        }
         if(email.isEmpty()){
             txtEmail.setError("Email is required");
             txtEmail.requestFocus();
@@ -69,6 +78,9 @@ public class signup extends AppCompatActivity implements View.OnClickListener{
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressBar.setVisibility(View.GONE);
                 if(task.isSuccessful()){
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
+                    user.updateProfile(profile);
                     Toast.makeText(getApplicationContext(), "User Registered Successful",Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(signup.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
