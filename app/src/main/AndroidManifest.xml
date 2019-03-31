@@ -9,6 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".MenuActivity"></activity>
         <activity android:name=".DivisionViewActivity" />
         <activity android:name=".DraftViewActivity" />
         <activity android:name=".MainActivity">
@@ -18,14 +19,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Login" >
+        <activity android:name=".Login">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
+
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name=".signup">
-        </activity>
+        <activity android:name=".signup"></activity>
     </application>
 
 </manifest>
