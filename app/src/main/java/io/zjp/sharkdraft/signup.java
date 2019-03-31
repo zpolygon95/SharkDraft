@@ -82,7 +82,7 @@ public class signup extends AppCompatActivity implements View.OnClickListener{
                     UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
                     user.updateProfile(profile);
                     Toast.makeText(getApplicationContext(), "User Registered Successful",Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(signup.this, MainActivity.class);
+                    Intent intent = new Intent(signup.this, MenuActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {
