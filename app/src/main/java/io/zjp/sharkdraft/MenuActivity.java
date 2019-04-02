@@ -27,6 +27,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MenuActivity extends AppCompatActivity {
@@ -208,26 +209,27 @@ public class MenuActivity extends AppCompatActivity {
                         Map<String, Object> data = document.getData();
                         String leagueName = "<No Name>";
                         String leagueOwner = "<No Owner>";
-                        Map<String, String> ownerInfo;
-                        Map<String, String> memberArray[];
+                        HashMap<String, String> ownerInfo;
+                        ArrayList<HashMap<String, String>> memberArray;
                         boolean own = false;
                         boolean member = false;
                         boolean frozen = false;
                         try {
                             if (data.containsKey("Name"))
                                 leagueName = (String) data.get("Name");
-                            if (data.containsKey("owner")) {
-                                ownerInfo = (Map<String, String>) data.get("owner");
-                                if (ownerInfo.containsKey("Name")) {
+                            if (data.containsKey("Owner")) {
+                                ownerInfo = (HashMap<String, String>) data.get("Owner");
+                                System.out.println("<<<GETTING OWNER INFO>>>");
+                                for (String k : ownerInfo.keySet())
+                                    System.out.println(k + ":::" + ownerInfo.get(k));
+                                if (ownerInfo.containsKey("Name"))
                                     leagueOwner = ownerInfo.get("Name");
-                                }
-                                if (ownerInfo.containsKey("UID")) {
-                                    own = ownerInfo.get("UID").equals(userUID);
-                                }
+                                if (ownerInfo.containsKey("UID") && ownerInfo.get("UID").equals(userUID))
+                                    own = true;
                             }
                             if (data.containsKey("Members")) {
-                                memberArray = (Map<String, String>[]) data.get("Members");
-                                for (Map<String, String> m : memberArray) {
+                                memberArray = (ArrayList<HashMap<String, String>>) data.get("Members");
+                                for (HashMap<String, String> m : memberArray) {
                                     if (m.containsKey("UID") && m.get("UID").equals(userUID)) {
                                         member = true;
                                         break;
@@ -237,9 +239,9 @@ public class MenuActivity extends AppCompatActivity {
                             if (data.containsKey("DraftOrder"))
                                 frozen = true;
                         } catch (ClassCastException e) {
-                            System.out.println(e.toString());
+                            System.out.println("ClassCastException:::" + e.toString());
                         } catch (NullPointerException e) {
-                            System.out.println(e.toString());
+                            System.out.println("NullPointerException:::" + e.toString());
                         }
                         leagueArray.add(new LeagueInfo(
                                 document.getId(), leagueName, leagueOwner,
