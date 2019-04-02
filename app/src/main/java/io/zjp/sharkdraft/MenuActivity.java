@@ -1,7 +1,9 @@
 package io.zjp.sharkdraft;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,14 +16,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -257,7 +263,62 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     public void createLeague(View view) {
-
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.create_league_dialog, null);
+        builder.setTitle("Create a New League")
+                .setView(dialogView)
+                .setPositiveButton("Create League", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String lname = ((EditText) dialogView.findViewById(R.id.txtDialogNewLeagueName)).getText().toString();
+                        String lown = ((EditText) dialogView.findViewById(R.id.txtDialogNewLeagueOwner)).getText().toString();
+                        String ldiv = ((EditText) dialogView.findViewById(R.id.txtDialogNewLeagueDivisions)).getText().toString();
+                        HashMap<String, Object> league = new HashMap<>();
+                        league.put("Name", lname);
+                        HashMap<String, Object> ownerInfo = new HashMap<>();
+                        FirebaseAuth auth = FirebaseAuth.getInstance();
+                        FirebaseUser user = auth.getCurrentUser();
+                        ownerInfo.put("Name", lown);
+                        ownerInfo.put("UID", user.getUid());
+                        league.put("Owner", ownerInfo);
+                        int ndiv;
+                        try {
+                            ndiv = Integer.parseInt(ldiv);
+                            league.put("Divisions", ndiv);
+                            league.put("Members", new ArrayList<>());
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            progressBar.setVisibility(View.VISIBLE);
+                            db.collection("leagues").add(league).addOnSuccessListener(
+                                new OnSuccessListener<DocumentReference>() {
+                                    @Override
+                                    public void onSuccess(DocumentReference documentReference) {
+                                        progressBar.setVisibility(View.GONE);
+                                        Toast.makeText(
+                                                MenuActivity.this,
+                                                "League Created!",
+                                                Toast.LENGTH_SHORT).show();
+                                        refreshLeaguesList();
+                                    }
+                                }).addOnFailureListener(
+                                new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        progressBar.setVisibility(View.GONE);
+                                        Toast.makeText(
+                                                MenuActivity.this,
+                                                e.getLocalizedMessage(),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                            });
+                        } catch (NumberFormatException nfe) {
+                            Toast.makeText(MenuActivity.this, "# Leagues must be a number", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     public void navigateManualDraft(View view) {
