@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +27,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class MenuActivity extends AppCompatActivity {
 
@@ -34,6 +36,8 @@ public class MenuActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager leaguesManager;
 
     private ArrayList<LeagueInfo> leagueArray;
+
+    private ProgressBar progressBar;
 
     public class LeagueInfo {
         public String leagueID;
@@ -112,6 +116,8 @@ public class MenuActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setTitle("My Leagues");
 
+        progressBar = findViewById(R.id.pbMenu);
+
         leagueArray = new ArrayList<>();
         // test data
         leagueArray.add(new LeagueInfo(
@@ -187,7 +193,69 @@ public class MenuActivity extends AppCompatActivity {
 //    }
 
     public void refreshLeaguesList() {
-
+        progressBar.setVisibility(View.VISIBLE);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("leagues").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                progressBar.setVisibility(View.GONE);
+                if (task.isSuccessful()) {
+                    FirebaseAuth auth = FirebaseAuth.getInstance();
+                    FirebaseUser user = auth.getCurrentUser();
+                    String userUID = user.getUid();
+                    leagueArray.clear();
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Map<String, Object> data = document.getData();
+                        String leagueName = "<No Name>";
+                        String leagueOwner = "<No Owner>";
+                        Map<String, String> ownerInfo;
+                        Map<String, String> memberArray[];
+                        boolean own = false;
+                        boolean member = false;
+                        boolean frozen = false;
+                        try {
+                            if (data.containsKey("Name"))
+                                leagueName = (String) data.get("Name");
+                            if (data.containsKey("owner")) {
+                                ownerInfo = (Map<String, String>) data.get("owner");
+                                if (ownerInfo.containsKey("Name")) {
+                                    leagueOwner = ownerInfo.get("Name");
+                                }
+                                if (ownerInfo.containsKey("UID")) {
+                                    own = ownerInfo.get("UID").equals(userUID);
+                                }
+                            }
+                            if (data.containsKey("Members")) {
+                                memberArray = (Map<String, String>[]) data.get("Members");
+                                for (Map<String, String> m : memberArray) {
+                                    if (m.containsKey("UID") && m.get("UID").equals(userUID)) {
+                                        member = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (data.containsKey("DraftOrder"))
+                                frozen = true;
+                        } catch (ClassCastException e) {
+                            System.out.println(e.toString());
+                        } catch (NullPointerException e) {
+                            System.out.println(e.toString());
+                        }
+                        leagueArray.add(new LeagueInfo(
+                                document.getId(), leagueName, leagueOwner,
+                                own, member, frozen
+                        ));
+                        leaguesAdapter.notifyDataSetChanged();
+                    }
+                } else {
+                    Toast.makeText(
+                            MenuActivity.this,
+                            "Error Fetching Leagues: " + task.getException().getMessage(),
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+        });
     }
 
     public void joinLeague(View view) {
