@@ -217,9 +217,6 @@ public class MenuActivity extends AppCompatActivity {
                                 leagueName = (String) data.get("Name");
                             if (data.containsKey("Owner")) {
                                 ownerInfo = (HashMap<String, String>) data.get("Owner");
-                                System.out.println("<<<GETTING OWNER INFO>>>");
-                                for (String k : ownerInfo.keySet())
-                                    System.out.println(k + ":::" + ownerInfo.get(k));
                                 if (ownerInfo.containsKey("Name"))
                                     leagueOwner = ownerInfo.get("Name");
                                 if (ownerInfo.containsKey("UID") && ownerInfo.get("UID").equals(userUID))
@@ -241,12 +238,13 @@ public class MenuActivity extends AppCompatActivity {
                         } catch (NullPointerException e) {
                             System.out.println("NullPointerException:::" + e.toString());
                         }
-                        leagueArray.add(new LeagueInfo(
-                                document.getId(), leagueName, leagueOwner,
-                                own, member, frozen
-                        ));
-                        leaguesAdapter.notifyDataSetChanged();
+                        if (own || member)
+                            leagueArray.add(new LeagueInfo(
+                                    document.getId(), leagueName, leagueOwner,
+                                    own, member, frozen
+                            ));
                     }
+                    leaguesAdapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(
                             MenuActivity.this,
