@@ -271,14 +271,20 @@ public class MenuActivity extends AppCompatActivity {
                 .setPositiveButton("Create League", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        FirebaseAuth auth = FirebaseAuth.getInstance();
+                        FirebaseUser user = auth.getCurrentUser();
                         String lname = ((EditText) dialogView.findViewById(R.id.txtDialogNewLeagueName)).getText().toString();
+                        if (lname.isEmpty()) {
+                            Toast.makeText(MenuActivity.this, "Please Choose a League Name", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         String lown = ((EditText) dialogView.findViewById(R.id.txtDialogNewLeagueOwner)).getText().toString();
+                        if (lown.isEmpty())
+                            lown = user.getDisplayName();
                         String ldiv = ((EditText) dialogView.findViewById(R.id.txtDialogNewLeagueDivisions)).getText().toString();
                         HashMap<String, Object> league = new HashMap<>();
                         league.put("Name", lname);
                         HashMap<String, Object> ownerInfo = new HashMap<>();
-                        FirebaseAuth auth = FirebaseAuth.getInstance();
-                        FirebaseUser user = auth.getCurrentUser();
                         ownerInfo.put("Name", lown);
                         ownerInfo.put("UID", user.getUid());
                         league.put("Owner", ownerInfo);
