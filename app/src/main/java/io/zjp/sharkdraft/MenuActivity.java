@@ -120,21 +120,13 @@ public class MenuActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.pbMenu);
 
         leagueArray = new ArrayList<>();
-        // test data
-        leagueArray.add(new LeagueInfo(
-                "someID",
-                "Some League",
-                "Some Owner",
-                true,
-                false,
-                true
-        ));
         listLeagues = findViewById(R.id.listLeagues);
         listLeagues.setHasFixedSize(true);
         leaguesManager = new LinearLayoutManager(this);
         listLeagues.setLayoutManager(leaguesManager);
         leaguesAdapter = new LeaguesAdapter(leagueArray);
         listLeagues.setAdapter(leaguesAdapter);
+        refreshLeaguesList();
     }
 
     @Override
