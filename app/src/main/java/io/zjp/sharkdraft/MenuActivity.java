@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,6 +38,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MenuActivity extends AppCompatActivity {
+
+
+    private FirebaseFirestore db;
+    private FirebaseAuth auth;
+    private FirebaseUser user;
 
     private RecyclerView listLeagues;
     private RecyclerView.Adapter leaguesAdapter;
@@ -119,20 +125,27 @@ public class MenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setTitle("My Leagues");
+        db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
+        if (user == null)
+            logout();
+        else {
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            toolbar.setTitle("My Leagues");
 
-        progressBar = findViewById(R.id.pbMenu);
+            progressBar = findViewById(R.id.pbMenu);
 
-        leagueArray = new ArrayList<>();
-        listLeagues = findViewById(R.id.listLeagues);
-        listLeagues.setHasFixedSize(true);
-        leaguesManager = new LinearLayoutManager(this);
-        listLeagues.setLayoutManager(leaguesManager);
-        leaguesAdapter = new LeaguesAdapter(leagueArray);
-        listLeagues.setAdapter(leaguesAdapter);
-        refreshLeaguesList();
+            leagueArray = new ArrayList<>();
+            listLeagues = findViewById(R.id.listLeagues);
+            listLeagues.setHasFixedSize(true);
+            leaguesManager = new LinearLayoutManager(this);
+            listLeagues.setLayoutManager(leaguesManager);
+            leaguesAdapter = new LeaguesAdapter(leagueArray);
+            listLeagues.setAdapter(leaguesAdapter);
+            refreshLeaguesList();
+        }
     }
 
     @Override
@@ -147,11 +160,7 @@ public class MenuActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menuLogout:
-                FirebaseAuth.getInstance().signOut();
-                finish();
-                startActivity(
-                        new Intent(this, Login.class)
-                );
+                logout();
                 break;
             case R.id.menuRefresh:
                 refreshLeaguesList();
@@ -161,20 +170,23 @@ public class MenuActivity extends AppCompatActivity {
         return true;
     }
 
+    public void logout() {
+        FirebaseAuth.getInstance().signOut();
+        finish();
+        startActivity(
+                new Intent(this, Login.class)
+        );
+    }
+
 //    public void testAuth(View view) {
-//        FirebaseAuth auth = FirebaseAuth.getInstance();
-//        FirebaseUser user = auth.getCurrentUser();
 //        Toast.makeText(this, user.getDisplayName(), Toast.LENGTH_SHORT).show();
 //    }
 //
 //    public void testAuth1(View view) {
-//        FirebaseAuth auth = FirebaseAuth.getInstance();
-//        FirebaseUser user = auth.getCurrentUser();
 //        Toast.makeText(this, user.getUid(), Toast.LENGTH_SHORT).show();
 //    }
 //
 //    public void testDB(View view) {
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
 //        db.collection("leagues").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
 //            @Override
 //            public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -193,14 +205,11 @@ public class MenuActivity extends AppCompatActivity {
 
     public void refreshLeaguesList() {
         progressBar.setVisibility(View.VISIBLE);
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("leagues").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 progressBar.setVisibility(View.GONE);
                 if (task.isSuccessful()) {
-                    FirebaseAuth auth = FirebaseAuth.getInstance();
-                    FirebaseUser user = auth.getCurrentUser();
                     String userUID = user.getUid();
                     leagueArray.clear();
                     for (QueryDocumentSnapshot document : task.getResult()) {
@@ -257,7 +266,20 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     public void joinLeague(View view) {
-
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText leagueID = new EditText(this);
+        leagueID.setInputType(InputType.TYPE_CLASS_TEXT);
+        leagueID.setHint("League ID");
+        builder.setTitle("Join League");
+        builder.setView(leagueID);
+        builder.setPositiveButton("Join", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(MenuActivity.this, leagueID.getText(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
     }
 
     public void createLeague(View view) {
@@ -269,8 +291,6 @@ public class MenuActivity extends AppCompatActivity {
                 .setPositiveButton("Create League", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        FirebaseAuth auth = FirebaseAuth.getInstance();
-                        FirebaseUser user = auth.getCurrentUser();
                         String lname = ((EditText) dialogView.findViewById(R.id.txtDialogNewLeagueName)).getText().toString();
                         if (lname.isEmpty()) {
                             Toast.makeText(MenuActivity.this, "Please Choose a League Name", Toast.LENGTH_SHORT).show();
@@ -291,7 +311,6 @@ public class MenuActivity extends AppCompatActivity {
                             ndiv = Integer.parseInt(ldiv);
                             league.put("Divisions", ndiv);
                             league.put("Members", new ArrayList<>());
-                            FirebaseFirestore db = FirebaseFirestore.getInstance();
                             progressBar.setVisibility(View.VISIBLE);
                             db.collection("leagues").add(league).addOnSuccessListener(
                                 new OnSuccessListener<DocumentReference>() {
