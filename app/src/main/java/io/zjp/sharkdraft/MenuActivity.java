@@ -164,7 +164,14 @@ public class MenuActivity extends AppCompatActivity {
             leaguesAdapter.setItemClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(MenuActivity.this, "Short Click!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getApplicationContext(), LeagueDetailActivity.class);
+                    RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) v.getTag();
+                    LeagueInfo info = leaguesAdapter.data.get(viewHolder.getAdapterPosition());
+                    String teamslist = "";
+                    // TODO: all the data transfer stuff
+                    // TODO: add member array to LeagueInfo object
+                    intent.putExtra("TEAMS_LIST", teamslist);
+                    startActivity(intent);
                 }
             });
             leaguesAdapter.setItemLongClickListener(new View.OnLongClickListener() {

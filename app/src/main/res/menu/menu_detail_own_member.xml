@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menuLogout"
+        android:title="Logout" />
+    <item
+        android:id="@+id/menuDetailLeave"
+        android:title="Leave League" />
+    <item
+        android:id="@+id/menuDetailChangeMemberName"
+        android:title="Change Member Name" />
+    <item
+        android:id="@+id/menuDetailChangeLeagueName"
+        android:title="Change League Name" />
+    <item
+        android:id="@+id/menuDetailChangeOwnerName"
+        android:title="Change Owner Name" />
+    <item
+        android:id="@+id/menuDetailSetDraftOrder"
+        android:title="Set Draft Order" />
+    <item
+        android:id="@+id/menuDetailDeleteLeague"
+        android:title="Delete League" />
+</menu>
