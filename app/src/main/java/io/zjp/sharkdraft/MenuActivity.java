@@ -164,7 +164,7 @@ public class MenuActivity extends AppCompatActivity {
             leaguesAdapter.setItemClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(MenuActivity.this, "Short Click!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MenuActivity.this, "Not Yet Implemented!", Toast.LENGTH_SHORT).show();
                 }
             });
             leaguesAdapter.setItemLongClickListener(new View.OnLongClickListener() {
