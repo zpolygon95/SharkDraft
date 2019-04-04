@@ -1,5 +1,7 @@
 package io.zjp.sharkdraft;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -47,7 +49,7 @@ public class MenuActivity extends AppCompatActivity {
     private FirebaseUser user;
 
     private RecyclerView listLeagues;
-    private RecyclerView.Adapter leaguesAdapter;
+    private LeaguesAdapter leaguesAdapter;
     private RecyclerView.LayoutManager leaguesManager;
 
     private ArrayList<LeagueInfo> leagueArray;
@@ -79,6 +81,7 @@ public class MenuActivity extends AppCompatActivity {
 
     public class LeaguesAdapter extends RecyclerView.Adapter<LeaguesAdapter.ViewHolder> {
         private ArrayList<LeagueInfo> data;
+        private View.OnClickListener onItemClickListener;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             public TextView tvLeagueName, tvLeagueOwner;
@@ -86,6 +89,8 @@ public class MenuActivity extends AppCompatActivity {
 
             public ViewHolder(View v) {
                 super(v);
+                v.setTag(this);
+                v.setOnClickListener(onItemClickListener);
                 tvLeagueName = v.findViewById(R.id.tvLeagueName);
                 tvLeagueOwner = v.findViewById(R.id.tvLeagueOwner);
                 checkOwn = v.findViewById(R.id.checkOwn);
@@ -96,6 +101,10 @@ public class MenuActivity extends AppCompatActivity {
 
         public LeaguesAdapter(ArrayList<LeagueInfo> dataset) {
             data = dataset;
+        }
+
+        public void setItemClickListener(View.OnClickListener clickListener) {
+            onItemClickListener = clickListener;
         }
 
         @Override
@@ -146,6 +155,16 @@ public class MenuActivity extends AppCompatActivity {
             listLeagues.setLayoutManager(leaguesManager);
             leaguesAdapter = new LeaguesAdapter(leagueArray);
             listLeagues.setAdapter(leaguesAdapter);
+            leaguesAdapter.setItemClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) v.getTag();
+                    LeagueInfo info = leaguesAdapter.data.get(viewHolder.getAdapterPosition());
+                    ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText("League ID", info.leagueID));
+                    Toast.makeText(MenuActivity.this, "Copied League ID to Clipboard!", Toast.LENGTH_SHORT).show();
+                }
+            });
             refreshLeaguesList();
         }
     }
