@@ -82,6 +82,7 @@ public class MenuActivity extends AppCompatActivity {
     public class LeaguesAdapter extends RecyclerView.Adapter<LeaguesAdapter.ViewHolder> {
         private ArrayList<LeagueInfo> data;
         private View.OnClickListener onItemClickListener;
+        private View.OnLongClickListener onItemLongClickListener;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             public TextView tvLeagueName, tvLeagueOwner;
@@ -91,6 +92,7 @@ public class MenuActivity extends AppCompatActivity {
                 super(v);
                 v.setTag(this);
                 v.setOnClickListener(onItemClickListener);
+                v.setOnLongClickListener(onItemLongClickListener);
                 tvLeagueName = v.findViewById(R.id.tvLeagueName);
                 tvLeagueOwner = v.findViewById(R.id.tvLeagueOwner);
                 checkOwn = v.findViewById(R.id.checkOwn);
@@ -105,6 +107,10 @@ public class MenuActivity extends AppCompatActivity {
 
         public void setItemClickListener(View.OnClickListener clickListener) {
             onItemClickListener = clickListener;
+        }
+
+        public void setItemLongClickListener(View.OnLongClickListener clickListener) {
+            onItemLongClickListener = clickListener;
         }
 
         @Override
@@ -158,11 +164,18 @@ public class MenuActivity extends AppCompatActivity {
             leaguesAdapter.setItemClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Toast.makeText(MenuActivity.this, "Short Click!", Toast.LENGTH_SHORT).show();
+                }
+            });
+            leaguesAdapter.setItemLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
                     RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) v.getTag();
                     LeagueInfo info = leaguesAdapter.data.get(viewHolder.getAdapterPosition());
                     ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                     clipboardManager.setPrimaryClip(ClipData.newPlainText("League ID", info.leagueID));
                     Toast.makeText(MenuActivity.this, "Copied League ID to Clipboard!", Toast.LENGTH_SHORT).show();
+                    return true;
                 }
             });
             refreshLeaguesList();
