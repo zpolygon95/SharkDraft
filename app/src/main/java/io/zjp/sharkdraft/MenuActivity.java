@@ -180,31 +180,6 @@ public class MenuActivity extends AppCompatActivity {
         );
     }
 
-//    public void testAuth(View view) {
-//        Toast.makeText(this, user.getDisplayName(), Toast.LENGTH_SHORT).show();
-//    }
-//
-//    public void testAuth1(View view) {
-//        Toast.makeText(this, user.getUid(), Toast.LENGTH_SHORT).show();
-//    }
-//
-//    public void testDB(View view) {
-//        db.collection("leagues").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    String out = "List of Leagues:\n";
-//                    for (QueryDocumentSnapshot document : task.getResult()) {
-//                        out += document.getId() + ": " + document.getString("Name") + "\n";
-//                    }
-//                    dbInfo.setText(out);
-//                } else {
-//                    Toast.makeText(MenuActivity.this, "Error =(", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
-//    }
-
     public void refreshLeaguesList() {
         progressBar.setVisibility(View.VISIBLE);
         db.collection("leagues").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
