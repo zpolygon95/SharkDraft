@@ -267,7 +267,6 @@ public class MenuActivity extends AppCompatActivity {
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                 if (documentSnapshot.exists()) {
                                     Map<String, Object> data = documentSnapshot.getData();
-                                    String leagueName = "<No Name>";
                                     ArrayList<HashMap<String, String>> memberArray;
                                     String newMemberName = user.getDisplayName();
                                     if (txtMemberName.getText().length() > 0)
@@ -276,8 +275,6 @@ public class MenuActivity extends AppCompatActivity {
                                     newMember.put("UID", user.getUid());
                                     newMember.put("Name", newMemberName);
                                     try {
-                                        if (data.containsKey("Name"))
-                                            leagueName = (String) data.get("Name");
                                         if (data.containsKey("Members"))
                                             memberArray = (ArrayList<HashMap<String, String>>) data.get("Members");
                                         else
