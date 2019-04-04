@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +30,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -267,15 +269,102 @@ public class MenuActivity extends AppCompatActivity {
 
     public void joinLeague(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final EditText leagueID = new EditText(this);
-        leagueID.setInputType(InputType.TYPE_CLASS_TEXT);
-        leagueID.setHint("League ID");
+        final EditText txtLeagueID = new EditText(this);
+        txtLeagueID.setInputType(InputType.TYPE_CLASS_TEXT);
+        txtLeagueID.setHint("League ID");
+        final EditText txtMemberName = new EditText(this);
+        txtMemberName.setInputType(InputType.TYPE_CLASS_TEXT);
+        txtMemberName.setHint("Member Name");
+        LinearLayout l = new LinearLayout(this);
+        l.setOrientation(LinearLayout.VERTICAL);
+        l.addView(txtLeagueID);
+        l.addView(txtMemberName);
         builder.setTitle("Join League");
-        builder.setView(leagueID);
+        builder.setView(l);
         builder.setPositiveButton("Join", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(MenuActivity.this, leagueID.getText(), Toast.LENGTH_SHORT).show();
+                final String strLeagueID = txtLeagueID.getText().toString();
+                progressBar.setVisibility(View.VISIBLE);
+                db.collection("leagues").document(strLeagueID).get()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                if (documentSnapshot.exists()) {
+                                    Map<String, Object> data = documentSnapshot.getData();
+                                    String leagueName = "<No Name>";
+                                    ArrayList<HashMap<String, String>> memberArray;
+                                    String newMemberName = user.getDisplayName();
+                                    if (txtMemberName.getText().length() > 0)
+                                        newMemberName = txtMemberName.getText().toString();
+                                    HashMap<String, String> newMember = new HashMap<>();
+                                    newMember.put("UID", user.getUid());
+                                    newMember.put("Name", newMemberName);
+                                    try {
+                                        if (data.containsKey("Name"))
+                                            leagueName = (String) data.get("Name");
+                                        if (data.containsKey("Members"))
+                                            memberArray = (ArrayList<HashMap<String, String>>) data.get("Members");
+                                        else
+                                            memberArray = new ArrayList<>();
+                                        for (HashMap<String, String> m : memberArray)
+                                            if (m.containsKey("UID") && m.get("UID").equals(user.getUid())) {
+                                                newMember = null;
+                                                break;
+                                            }
+                                        if (newMember == null) {
+                                            progressBar.setVisibility(View.GONE);
+                                            Toast.makeText(
+                                                    MenuActivity.this,
+                                                    "You're already a member",
+                                                    Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            memberArray.add(newMember);
+                                            data.put("Members", memberArray);
+                                            db.collection("leagues").document(strLeagueID).set(data)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            refreshLeaguesList();
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            progressBar.setVisibility(View.GONE);
+                                                            Toast.makeText(
+                                                                    MenuActivity.this,
+                                                                    e.getLocalizedMessage(),
+                                                                    Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+                                        }
+                                    } catch (ClassCastException|NullPointerException e) {
+                                        progressBar.setVisibility(View.GONE);
+                                        Toast.makeText(
+                                                MenuActivity.this,
+                                                "An error occurred!",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    progressBar.setVisibility(View.GONE);
+                                    Toast.makeText(
+                                            MenuActivity.this,
+                                            "League Not Found",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(
+                                        MenuActivity.this,
+                                        e.getLocalizedMessage(),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
         builder.setNegativeButton("Cancel", null);
